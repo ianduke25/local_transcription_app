@@ -24,7 +24,7 @@ def transcribe_video(video_file, model):
 
 def main():
     st.title("Video Transcription App")
-    st.write("Upload multiple video files to generate transcripts.")
+    #st.write("Upload multiple video files to generate transcripts.")
 
     # Use session state to store transcripts
     if 'transcripts' not in st.session_state:
@@ -73,7 +73,7 @@ def main():
                     overall_status_text.text(f"Completed {file_index + 1}/{len(uploaded_files)} files.")
 
             total_end_time = time.time()
-            st.write(f"All transcriptions completed in {total_end_time - total_start_time:.2f} seconds.")
+            #st.write(f"All transcriptions completed in {total_end_time - total_start_time:.2f} seconds.")
 
     # If transcripts are available, display and provide download option
     if st.session_state.transcripts:
