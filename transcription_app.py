@@ -9,7 +9,7 @@ from io import BytesIO
 # Load the Whisper model
 @st.cache_resource
 def load_whisper_model():
-    return whisper.load_model("large-v2")
+    return whisper.load_model("base")
 
 def transcribe_video(video_file, model):
     with tempfile.NamedTemporaryFile(delete=False, suffix=".mp4") as temp_video:
