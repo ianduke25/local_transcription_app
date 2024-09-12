@@ -23,7 +23,7 @@ def transcribe_video(video_file, model):
         os.unlink(temp_video_path)
 
 def main():
-    st.title("ACLU Video Transcription App")
+    st.title("Video Transcription App")
     st.write("Upload multiple video files to generate transcripts.")
 
     # Use session state to store transcripts
@@ -81,22 +81,21 @@ def main():
             with st.expander(f"Transcript for '{filename}'"):
                 st.text_area(f"Transcript for {filename}", transcript, height=300)
 
-        # Create a ZIP file of all transcripts and download directly on button click
-        zip_buffer = BytesIO()
-        with ZipFile(zip_buffer, "w") as zip_file:
-            for filename, transcript in st.session_state.transcripts.items():
-                transcript_filename = f"{filename}_transcript.txt"
-                zip_file.writestr(transcript_filename, transcript)
+        # Create a ZIP file of all transcripts
+        if st.button("Download All Transcripts as ZIP"):
+            with BytesIO() as zip_buffer:
+                with ZipFile(zip_buffer, "w") as zip_file:
+                    for filename, transcript in st.session_state.transcripts.items():
+                        transcript_filename = f"{filename}_transcript.txt"
+                        zip_file.writestr(transcript_filename, transcript)
 
-        zip_buffer.seek(0)
-
-        # Trigger the download immediately on button click
-        st.download_button(
-            label="Download All Transcripts as ZIP",
-            data=zip_buffer,
-            file_name="transcripts.zip",
-            mime="application/zip"
-        )
+                zip_buffer.seek(0)
+                st.download_button(
+                    label="Download ZIP",
+                    data=zip_buffer,
+                    file_name="transcripts.zip",
+                    mime="application/zip"
+                )
 
 if __name__ == "__main__":
     main()
