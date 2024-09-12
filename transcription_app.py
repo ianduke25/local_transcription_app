@@ -23,7 +23,7 @@ def transcribe_video(video_file, model):
         os.unlink(temp_video_path)
 
 def main():
-    st.title("Video Transcription App")
+    st.title("ACLU Video Transcription App")
     #st.write("Upload multiple video files to generate transcripts.")
 
     # Use session state to store transcripts
