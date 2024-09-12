@@ -65,7 +65,7 @@ def main():
 
                     # Store the transcript in session state
                     st.session_state.transcripts[uploaded_file.name] = transcript
-                    st.write(f"Transcription for '{uploaded_file.name}' completed in {processing_time:.2f} seconds.")
+                    #st.write(f"Transcription for '{uploaded_file.name}' completed in {processing_time:.2f} seconds.")
 
                     # Update overall progress
                     overall_progress = (file_index + 1) / len(uploaded_files)
