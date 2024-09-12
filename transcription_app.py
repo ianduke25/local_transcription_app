@@ -26,60 +26,69 @@ def main():
     st.title("Video Transcription App")
     st.write("Upload multiple video files to generate transcripts.")
 
+    # Use session state to store transcripts
+    if 'transcripts' not in st.session_state:
+        st.session_state.transcripts = {}
+
     uploaded_files = st.file_uploader("Choose video files", type=["mp4", "mkv", "avi", "mov"], accept_multiple_files=True)
 
     if uploaded_files is not None:
-        model = load_whisper_model()
+        if st.button("Start Transcription"):
+            model = load_whisper_model()
 
-        transcripts = {}
-        total_start_time = time.time()
+            total_start_time = time.time()
 
-        # Create a placeholder for overall progress
-        overall_progress_bar = st.progress(0)
-        overall_status_text = st.empty()
+            # Create a placeholder for overall progress
+            overall_progress_bar = st.progress(0)
+            overall_status_text = st.empty()
 
-        for file_index, uploaded_file in enumerate(uploaded_files):
-            st.write(f"Transcribing '{uploaded_file.name}'...")
+            for file_index, uploaded_file in enumerate(uploaded_files):
+                # Only transcribe if the file hasn't been transcribed yet
+                if uploaded_file.name not in st.session_state.transcripts:
+                    st.write(f"Transcribing '{uploaded_file.name}'...")
 
-            progress_bar = st.progress(0)
-            status_text = st.empty()
+                    progress_bar = st.progress(0)
+                    status_text = st.empty()
 
-            start_time = time.time()
-            segments = transcribe_video(uploaded_file, model)
+                    start_time = time.time()
+                    segments = transcribe_video(uploaded_file, model)
 
-            transcript = ""
-            for i, segment in enumerate(segments):
-                transcript += f"[{segment['start']:.2f} - {segment['end']:.2f}] {segment['text']}\n"
-                progress = (i + 1) / len(segments)
-                progress_bar.progress(progress)
-                status_text.text(f"Processing segment {i+1}/{len(segments)}")
+                    transcript = ""
+                    for i, segment in enumerate(segments):
+                        transcript += f"[{segment['start']:.2f} - {segment['end']:.2f}] {segment['text']}\n"
+                        progress = (i + 1) / len(segments)
+                        progress_bar.progress(progress)
+                        status_text.text(f"Processing segment {i+1}/{len(segments)}")
 
-            end_time = time.time()
-            processing_time = end_time - start_time
+                    end_time = time.time()
+                    processing_time = end_time - start_time
 
-            transcripts[uploaded_file.name] = transcript
-            st.write(f"Transcription for '{uploaded_file.name}' completed in {processing_time:.2f} seconds.")
-            
-            # Display transcript in a dropdown for each file
-            with st.expander(f"Transcript for '{uploaded_file.name}'"):
-                st.text_area(f"Transcript for {uploaded_file.name}", transcript, height=300)
+                    # Store the transcript in session state
+                    st.session_state.transcripts[uploaded_file.name] = transcript
+                    st.write(f"Transcription for '{uploaded_file.name}' completed in {processing_time:.2f} seconds.")
 
-            # Update overall progress
-            overall_progress = (file_index + 1) / len(uploaded_files)
-            overall_progress_bar.progress(overall_progress)
-            overall_status_text.text(f"Completed {file_index + 1}/{len(uploaded_files)} files.")
+                    # Update overall progress
+                    overall_progress = (file_index + 1) / len(uploaded_files)
+                    overall_progress_bar.progress(overall_progress)
+                    overall_status_text.text(f"Completed {file_index + 1}/{len(uploaded_files)} files.")
 
-        total_end_time = time.time()
-        st.write(f"All transcriptions completed in {total_end_time - total_start_time:.2f} seconds.")
+            total_end_time = time.time()
+            st.write(f"All transcriptions completed in {total_end_time - total_start_time:.2f} seconds.")
+
+    # If transcripts are available, display and provide download option
+    if st.session_state.transcripts:
+        for filename, transcript in st.session_state.transcripts.items():
+            with st.expander(f"Transcript for '{filename}'"):
+                st.text_area(f"Transcript for {filename}", transcript, height=300)
 
         # Create a ZIP file of all transcripts
         if st.button("Download All Transcripts as ZIP"):
             with BytesIO() as zip_buffer:
                 with ZipFile(zip_buffer, "w") as zip_file:
-                    for filename, transcript in transcripts.items():
+                    for filename, transcript in st.session_state.transcripts.items():
                         transcript_filename = f"{filename}_transcript.txt"
                         zip_file.writestr(transcript_filename, transcript)
-                
+
                 zip_buffer.seek(0)
                 st.download_button(
                     label="Download ZIP",
