@@ -6,6 +6,20 @@ import time
 from zipfile import ZipFile
 from io import BytesIO
 
+# Inject custom CSS to change the font to Garamond
+st.markdown(
+    """
+    <style>
+    @import url('https://fonts.googleapis.com/css2?family=Garamond&display=swap');
+
+    html, body, [class*="css"]  {
+        font-family: 'Garamond', serif;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True
+)
+
 # Load the Whisper model
 @st.cache_resource
 def load_whisper_model():
@@ -78,24 +92,24 @@ def main():
             with st.expander(f"Transcript for '{filename}'"):
                 st.text_area(f"Transcript for {filename}", transcript, height=300)
 
-        # Create a ZIP file of all transcripts
-        if st.button("Download All Transcripts as ZIP"):
-            with BytesIO() as zip_buffer:
-                with ZipFile(zip_buffer, "w") as zip_file:
-                    for filename, transcript in st.session_state.transcripts.items():
-                        transcript_filename = f"{filename}_transcript.txt"
-                        zip_file.writestr(transcript_filename, transcript)
+        # Create and trigger the ZIP file download directly without a second button
+        with BytesIO() as zip_buffer:
+            with ZipFile(zip_buffer, "w") as zip_file:
+                for filename, transcript in st.session_state.transcripts.items():
+                    transcript_filename = f"{filename}_transcript.txt"
+                    zip_file.writestr(transcript_filename, transcript)
 
-                zip_buffer.seek(0)
+            zip_buffer.seek(0)
 
-                # Trigger the download directly
-                st.download_button(
-                    label="Download All Transcripts",
-                    data=zip_buffer,
-                    file_name="transcripts.zip",
-                    mime="application/zip"
-                )
+            # Directly show download button for the ZIP file
+            st.download_button(
+                label="Download All Transcripts as ZIP",
+                data=zip_buffer,
+                file_name="transcripts.zip",
+                mime="application/zip"
+            )
 
 if __name__ == "__main__":
     main()
+
 
