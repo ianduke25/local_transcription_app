@@ -76,26 +76,30 @@ def main():
             #st.write(f"All transcriptions completed in {total_end_time - total_start_time:.2f} seconds.")
 
     # If transcripts are available, display and provide download option
-    if st.session_state.transcripts:
-        for filename, transcript in st.session_state.transcripts.items():
-            with st.expander(f"Transcript for '{filename}'"):
-                st.text_area(f"Transcript for {filename}", transcript, height=300)
+# If transcripts are available, display and provide download option
+if st.session_state.transcripts:
+    for filename, transcript in st.session_state.transcripts.items():
+        with st.expander(f"Transcript for '{filename}'"):
+            st.text_area(f"Transcript for {filename}", transcript, height=300)
 
-        # Create a ZIP file of all transcripts
-        if st.button("Download All Transcripts as ZIP"):
-            with BytesIO() as zip_buffer:
-                with ZipFile(zip_buffer, "w") as zip_file:
-                    for filename, transcript in st.session_state.transcripts.items():
-                        transcript_filename = f"{filename}_transcript.txt"
-                        zip_file.writestr(transcript_filename, transcript)
+    # Create a ZIP file of all transcripts
+    if st.button("Download All Transcripts as ZIP"):
+        with BytesIO() as zip_buffer:
+            with ZipFile(zip_buffer, "w") as zip_file:
+                for filename, transcript in st.session_state.transcripts.items():
+                    transcript_filename = f"{filename}_transcript.txt"
+                    zip_file.writestr(transcript_filename, transcript)
 
-                zip_buffer.seek(0)
-                st.download_button(
-                    label="Download ZIP",
-                    data=zip_buffer,
-                    file_name="transcripts.zip",
-                    mime="application/zip"
-                )
+            zip_buffer.seek(0)
+
+            # Trigger the download directly without a second button
+            st.download_button(
+                label="Download All Transcripts",
+                data=zip_buffer,
+                file_name="transcripts.zip",
+                mime="application/zip"
+            )
+
 
 if __name__ == "__main__":
     main()
