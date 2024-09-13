@@ -24,7 +24,6 @@ def transcribe_video(video_file, model):
 
 def main():
     st.title("ACLU Video Transcription App")
-    #st.write("Upload multiple video files to generate transcripts.")
 
     # Use session state to store transcripts
     if 'transcripts' not in st.session_state:
@@ -65,7 +64,6 @@ def main():
 
                     # Store the transcript in session state
                     st.session_state.transcripts[uploaded_file.name] = transcript
-                    #st.write(f"Transcription for '{uploaded_file.name}' completed in {processing_time:.2f} seconds.")
 
                     # Update overall progress
                     overall_progress = (file_index + 1) / len(uploaded_files)
@@ -73,33 +71,31 @@ def main():
                     overall_status_text.text(f"Completed {file_index + 1}/{len(uploaded_files)} files.")
 
             total_end_time = time.time()
-            #st.write(f"All transcriptions completed in {total_end_time - total_start_time:.2f} seconds.")
 
     # If transcripts are available, display and provide download option
-# If transcripts are available, display and provide download option
-if st.session_state.transcripts:
-    for filename, transcript in st.session_state.transcripts.items():
-        with st.expander(f"Transcript for '{filename}'"):
-            st.text_area(f"Transcript for {filename}", transcript, height=300)
+    if st.session_state.transcripts:
+        for filename, transcript in st.session_state.transcripts.items():
+            with st.expander(f"Transcript for '{filename}'"):
+                st.text_area(f"Transcript for {filename}", transcript, height=300)
 
-    # Create a ZIP file of all transcripts
-    if st.button("Download All Transcripts as ZIP"):
-        with BytesIO() as zip_buffer:
-            with ZipFile(zip_buffer, "w") as zip_file:
-                for filename, transcript in st.session_state.transcripts.items():
-                    transcript_filename = f"{filename}_transcript.txt"
-                    zip_file.writestr(transcript_filename, transcript)
+        # Create a ZIP file of all transcripts
+        if st.button("Download All Transcripts as ZIP"):
+            with BytesIO() as zip_buffer:
+                with ZipFile(zip_buffer, "w") as zip_file:
+                    for filename, transcript in st.session_state.transcripts.items():
+                        transcript_filename = f"{filename}_transcript.txt"
+                        zip_file.writestr(transcript_filename, transcript)
 
-            zip_buffer.seek(0)
+                zip_buffer.seek(0)
 
-            # Trigger the download directly without a second button
-            st.download_button(
-                label="Download All Transcripts",
-                data=zip_buffer,
-                file_name="transcripts.zip",
-                mime="application/zip"
-            )
-
+                # Trigger the download directly
+                st.download_button(
+                    label="Download All Transcripts",
+                    data=zip_buffer,
+                    file_name="transcripts.zip",
+                    mime="application/zip"
+                )
 
 if __name__ == "__main__":
     main()
+
